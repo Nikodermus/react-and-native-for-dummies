@@ -1,7 +1,12 @@
 import React from 'react';
 
 class AddFishForm extends React.Component {
-  addFish(event) {
+  constructor() {
+    super();
+    this.addFishForm = this.addFishForm.bind(this);
+  }
+
+  addFishForm(event) {
     event.preventDefault();
     console.log(this);
 
@@ -13,13 +18,13 @@ class AddFishForm extends React.Component {
       image: this.image.value,
     }
 
-    console.log(fish);
+    this.props.addFish(fish);
   }
 
 
   render() {
     return (
-      <form action="" className="fish-edit" onSubmit={this.addFish}>
+      <form action="" className="fish-edit" onSubmit={this.addFishForm}>
         <input ref={(input) => this.name = input} type="text" placeholder="Fish Name" />
         <input ref={(input) => this.price = input} type="text" placeholder="Fish Price" />
         <select ref={(input) => this.status = input} name="" id="">
