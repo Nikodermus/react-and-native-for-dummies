@@ -22,6 +22,7 @@ export default class Fish extends Component {
           onClick={() => this.props.addToOrder(index)}>
           {available ? 'Add to order' : 'Sold out'}
         </button>
+
       </li>
     )
   }

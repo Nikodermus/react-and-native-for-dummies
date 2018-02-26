@@ -1,5 +1,6 @@
 import React from 'react';
 import { formatPrice } from '../helpers';
+import CSSTransitionGroup from 'react-addons-css-transition-group';
 
 class Order extends React.Component {
   constructor() {
@@ -10,20 +11,34 @@ class Order extends React.Component {
   renderOrder(key) {
     const fish = this.props.fishes[key]
     const count = this.props.order[key]
+    const remove_button = <button onClick={() => this.props.deleteToOrder(key)}>&times;</button>
 
     if (!fish || fish.status === 'unavailable') {
-      return <li key={key}>Sorry, {fish ? fish.name : 'fish'} no longer available</li>
+      return <li key={key}>Sorry, {fish ? fish.name : 'fish'} no longer available {remove_button}</li>
     }
 
     return (
       <li key={key}>
-        <span>{count}lbs {fish.name}</span>
+        <span>
+          <CSSTransitionGroup
+            component="span"
+            className="count"
+            transitionName="count"
+            transitionEnterTimeout={250}
+            transitionLeaveTimeout={250}>
+            <span key={count}>{count}</span>
+          </CSSTransitionGroup>
+          lbs {fish.name} {remove_button}
+        </span>
         <span className="price">{formatPrice(count * fish.price)}</span>
+
       </li>
     )
   }
 
   render() {
+
+
     const order_ids = Object.keys(this.props.order),
       total = order_ids.reduce((tot, val) => {
         const fish = this.props.fishes[val];
@@ -38,14 +53,19 @@ class Order extends React.Component {
     return (
       <div className="order-wrap">
         <h2>Order</h2>
-        <ul className="order">
+        <CSSTransitionGroup
+          className="order"
+          component="ul"
+          transitionName="order"
+          transitionEnterTimeout={500}
+          transitionLeaveTimeout={500}>
           {order_ids.map(this.renderOrder)}
           <li className="total">
             <strong>
               {formatPrice(total)}
             </strong>
           </li>
-        </ul>
+        </CSSTransitionGroup>
       </div>
     )
   }
