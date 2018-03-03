@@ -1,9 +1,17 @@
 import React from 'react';
+import PropTypes from "prop-types";
 import AddFishForm from './addfishform';
-import base from '../base';
+import Login from './login';
+import firebase from 'firebase';
+import base, { firebase_app } from '../base';
 
 
 class Inventory extends React.Component {
+
+  static PropTypes = {
+    store_id: React.PropTypes.func.isRequired
+  }
+
   constructor() {
     super();
     this.renderInventory = this.renderInventory.bind(this);
@@ -12,9 +20,8 @@ class Inventory extends React.Component {
     this.authenticate = this.authenticate.bind(this);
 
     this.state = {
-      // Set the same user id and owner until I can resolve the authentica api problem
-      uid: 1,
-      owner: 1
+      uid: null,
+      owner: null
     }
   }
 
@@ -27,12 +34,24 @@ class Inventory extends React.Component {
     this.props.updateFish(key, update_fish);
   }
 
-  authenticate(provider) {
-    // base.AuthWithOAuthPopup(provider, this.authHandler)
+  authenticate = (provider) => {
+    const authProvider = new firebase.auth[`${provider}AuthProvider`]();
+
+    firebase_app
+      .auth()
+      .signInWithPopup(authProvider)
+      .then(this.authHandler);
   }
 
-  authHandler(err, auth_data) {
+  authHandler = async (err, auth_data) => {
+    const store = await base
+      .fetch(this.props.store_id, { context: this });
 
+    if (!store.owner) {
+      await base.post(`${this.props.store_id}/owner`, {
+        data: auth_data.user.uid,
+      })
+    }
   }
 
   logOut() {
@@ -83,23 +102,11 @@ class Inventory extends React.Component {
     )
   }
 
-  renderLogin() {
-
-    return (<nav className="login">
-      <h2>Inventory</h2>
-      <p>Sign in to manage</p>
-      <button className="github" onClick={() => this.authenticate('github')}>Login with github</button>
-      <button className="facebook" onClick={() => this.authenticate('facebook')}>Login with facebook</button>
-      <button className="twitter" onClick={() => this.authenticate('twitter')}>Login with twitter</button>
-    </nav>)
-  }
 
   render() {
     const logout_btn = <button onClick={() => this.logOut()}></button>;
 
-    if (!this.state.uid) {
-      return <div>{this.renderLogin()}</div>
-    }
+    return <Login authenticate={this.authenticate} />;
 
     if (this.state.uid !== this.state.owner) {
       return (
