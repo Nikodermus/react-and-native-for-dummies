@@ -61,4 +61,4 @@ typings/
 # Compiled versions
 dev/
 build/
-
+.next/
